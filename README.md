@@ -1,13 +1,60 @@
-## DeFi Road Map
+# 🚀 DeFi MVP - A Minimal Decentralized Finance Platform
 
+## 🌟 Overview
 We are building an innovative DeFi platform similar to [Yam on RealT](https://staging-yam.realtoken.network), aiming to make decentralized finance accessible and efficient.
-Our project is in advanced stages, with initial smart contracts and an frontend UI already implemented.
-The role will focus on finalizing and enhancing our platform’s user interface, integrating wallet functionality, and developing a marketplace for token transactions.
+DeFi MVP is a decentralized finance platform that enables users to **stake, swap, and earn rewards** using blockchain technology. This project is built as an **MVP (Minimum Viable Product)** to validate core DeFi functionalities.
 
-## Environment
+## 🔥 Features
+- 🔗 **Token Swapping** – Trade crypto assets using a decentralized exchange (DEX).
+- 💰 **Staking & Rewards** – Users can stake tokens and earn yield.
+- 🛡️ **Secure Wallet Integration** – Connect using MetaMask or WalletConnect.
+- 📊 **Transparent Smart Contracts** – All transactions are recorded on the blockchain.
+- ⚡ **Low Gas Fees** – Optimized for efficient transactions.
 
-If you meet any error while running the project, check the options bellow. And if you are using Windows, it is recommended to run the project using powershell or cmd.
+## 🏗️ Tech Stack
+- **Frontend**: React, Next.js, TailwindCSS
+- **Backend**: Node.js, Express
+- **Blockchain**: Solidity, Hardhat, Ethers.js
+- **Database**: IPFS (for decentralized storage)
+- **Smart Contracts**: ERC-20, ERC-721 (for NFTs)
+- **Wallet Integration**: MetaMask, WalletConnect
 
-Node verion: v18 or later
+## 🚀 Getting Started
 
-OS: Mac, Linux, Windows(An unexpected issue may arise)
+### 1️⃣ Prerequisites
+- Node.js (`v20.9.0 LTS`)
+- MetaMask Wallet(`Not required yet`)
+
+### 2️⃣ Installation
+Clone the repository:
+
+```bash
+git clone https://github.com/webwise-solutions-tech/screening-dex-demo.git
+cd screening-dex-demo
+npm install
+```
+
+### 3️⃣ Running the Frontend
+```bash
+npm start
+```
+Access at: `http://localhost:3000`
+
+## 🛣️ Roadmap
+- [ ] Smart contract deployment (MVP)
+- [ ] Token swapping feature
+- [ ] Liquidity pools integration
+- [ ] Governance token implementation
+- [ ] Cross-chain compatibility
+
+## 🛡️ Security Considerations
+- Use **Audited Smart Contracts** (avoid vulnerabilities)
+- Implement **Multi-Sig Wallets** for fund security
+- Follow **DeFi Best Practices** (avoid rug pulls)
+
+## 📜 License
+This project is **open-source** under the MIT License.
+
+---
+
+🚀 **Contributions Welcome!** If you're interested in improving this DeFi MVP, feel free to fork and submit a pull request. 🙌
