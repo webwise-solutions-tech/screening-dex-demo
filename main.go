@@ -1,182 +1,135 @@
 package main
 
 import (
-	"bufio"
-	"encoding/json"
-	"fmt"
-	"os"
-	"strings"
+	"net/http"
+	"strconv"
+	"sync"
+
+	"github.com/gin-gonic/gin"
 )
 
+// Note structure
 type Note struct {
 	ID      int    `json:"id"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
 }
 
-func displayMenu() {
-	fmt.Println("\nChoose an option:")
-	fmt.Println("1. Add a new note")
-	fmt.Println("2. View all notes")
-	fmt.Println("3. Update a note")
-	fmt.Println("4. Delete a note")
-	fmt.Println("5. Exit")
-}
+// Global map to store notes in memory (for simplicity)
+var notes = make(map[int]Note)
+var idCounter = 1
+var mu sync.Mutex
 
 func main() {
-	filePath := "notes.json"
-	for {
-		displayMenu()
-		reader := bufio.NewReader(os.Stdin)
-		option, _ := reader.ReadString('\n')
-		option = strings.TrimSpace(option)
+	// Initialize Gin router
+	r := gin.Default()
 
-		switch option {
-		case "1":
-			addNote(filePath)
-		case "2":
-			viewNotes(filePath)
-		case "3":
-			updateNote(filePath)
-		case "4":
-			deleteNote(filePath)
-		case "5":
-			fmt.Println("Thanks for using our note!")
-			return
-		default:
-			fmt.Println("Invalid option! Please try again.")
-		}
-	}
-}
-func addNote(filePath string) {
-	fmt.Print("Enter note title: ")
-	reader := bufio.NewReader(os.Stdin)
-	title, _ := reader.ReadString('\n')
-	title = strings.TrimSpace(title)
+	// Define the routes
+	r.POST("/notes", createNote)
+	r.GET("/notes", getNotes)
+	r.GET("/notes/:id", getNoteByID)
+	r.PUT("/notes/:id", updateNote)
+	r.DELETE("/notes/:id", deleteNote)
 
-	fmt.Print("Enter note content: ")
-	content, _ := reader.ReadString('\n')
-	content = strings.TrimSpace(content)
-	notes := loadNotes(filePath)
-	id := len(notes) + 1
-	note := Note{ID: id, Title: title, Content: content}
-	notes = append(notes, note)
-	saveNotes(filePath, notes)
-	fmt.Println("Note added successfully!")
-}
-func loadNotes(filePath string) []Note {
-	file, err := os.Open(filePath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return []Note{}
-		}
-		fmt.Println("Error opening file:", err)
-		return nil
-	}
-	defer file.Close()
-
-	var notes []Note
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&notes)
-	if err != nil && err.Error() != "EOF" {
-		fmt.Println("Error reading file:", err)
-		return nil
-	}
-	return notes
+	r.Run(":8000")
 }
 
-func saveNotes(filePath string, notes []Note) {
-	file, err := os.Create(filePath)
-	if err != nil {
-		fmt.Println("Error opening file:", err)
-		return
-	}
-	defer file.Close()
-
-	encoder := json.NewEncoder(file)
-	err = encoder.Encode(notes)
-	if err != nil {
-		fmt.Println("Error saving notes:", err)
-	}
-}
-
-func viewNotes(filePath string) {
-	notes := loadNotes(filePath)
-	if len(notes) == 0 {
-		fmt.Println("No notes found!")
+func createNote(c *gin.Context) {
+	var newNote Note
+	if err := c.ShouldBindJSON(&newNote); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
 	}
 
+	mu.Lock()
+	newNote.ID = idCounter
+	idCounter++
+	notes[newNote.ID] = newNote
+	mu.Unlock()
+
+	c.JSON(http.StatusCreated, newNote)
+}
+
+func getNotes(c *gin.Context) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	var allNotes []Note
 	for _, note := range notes {
-		fmt.Printf("ID: %d\nTitle: %s\nContent: %s\n\n", note.ID, note.Title, note.Content)
+		allNotes = append(allNotes, note)
 	}
+
+	c.JSON(http.StatusOK, allNotes)
 }
 
-func updateNote(filePath string) {
-	fmt.Print("Enter the ID of the note to update: ")
-	reader := bufio.NewReader(os.Stdin)
-	idStr, _ := reader.ReadString('\n')
-	idStr = strings.TrimSpace(idStr)
-
-	var id int
-	_, err := fmt.Sscanf(idStr, "%d", &id)
+func getNoteByID(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		fmt.Println("Invalid ID")
-		return
-	}
-	notes := loadNotes(filePath)
-	var found bool
-	for i, note := range notes {
-		if note.ID == id {
-			fmt.Print("Enter new title: ")
-			title, _ := reader.ReadString('\n')
-			title = strings.TrimSpace(title)
-			fmt.Print("Enter new content: ")
-			content, _ := reader.ReadString('\n')
-			content = strings.TrimSpace(content)
-			notes[i].Title = title
-			notes[i].Content = content
-			found = true
-			break
-		}
-	}
-
-	if found {
-		saveNotes(filePath, notes)
-		fmt.Println("Note updated successfully!")
-	} else {
-		fmt.Println("Note not found!")
-	}
-}
-
-func deleteNote(filePath string) {
-	fmt.Print("Enter the ID of the note to delete: ")
-	reader := bufio.NewReader(os.Stdin)
-	idStr, _ := reader.ReadString('\n')
-	idStr = strings.TrimSpace(idStr)
-
-	var id int
-	_, err := fmt.Sscanf(idStr, "%d", &id)
-	if err != nil {
-		fmt.Println("Invalid ID")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
 	}
 
-	notes := loadNotes(filePath)
+	mu.Lock()
+	note, exists := notes[id]
+	mu.Unlock()
 
-	var indexToDelete = -1
-	for i, note := range notes {
-		if note.ID == id {
-			indexToDelete = i
-			break
-		}
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Note not found"})
+		return
 	}
 
-	if indexToDelete != -1 {
-		notes = append(notes[:indexToDelete], notes[indexToDelete+1:]...)
-		saveNotes(filePath, notes)
-		fmt.Println("Note deleted successfully!")
-	} else {
-		fmt.Println("Note not found!")
+	c.JSON(http.StatusOK, note)
+}
+
+func updateNote(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
 	}
+
+	mu.Lock()
+	note, exists := notes[id]
+	mu.Unlock()
+
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Note not found"})
+		return
+	}
+
+	var updatedNote Note
+	if err := c.ShouldBindJSON(&updatedNote); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		return
+	}
+
+	mu.Lock()
+	note.Title = updatedNote.Title
+	note.Content = updatedNote.Content
+	notes[id] = note
+	mu.Unlock()
+
+	c.JSON(http.StatusOK, note)
+}
+
+func deleteNote(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
+
+	mu.Lock()
+	_, exists := notes[id]
+	if exists {
+		delete(notes, id)
+	}
+	mu.Unlock()
+
+	if !exists {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Note not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Note deleted successfully"})
 }
