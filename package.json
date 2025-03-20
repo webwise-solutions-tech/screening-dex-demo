@@ -47,7 +47,8 @@
     "express-validator": "^6.8.1",
     "swr": "^2.2.4",
     "three": "^0.158.0",
-    "zustand": "^4.4.1"
+    "zustand": "^4.4.1",
+    "cors": "^2.8.5"
   },
   "scripts": {
     "server": "node server",
