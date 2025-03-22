@@ -1,8 +1,11 @@
 const express = require('express');
 const path = require('path');
+const cors = require('cors'); // Import the cors middleware to showcase frontend interface.
 require('dotenv').config();
 
 const app = express();
+
+app.use(cors());  // Enable CORS for all routes
 
 // Connect Database
 // connectDB();
