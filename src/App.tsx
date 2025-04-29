@@ -7,11 +7,13 @@ import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { useRoutes } from "react-router-dom";
 import Router from "./routes/Router";
 import theme from "./theme";
+import { ToastContainer, toast } from 'react-toastify';
 
 function App() {
   const routing = useRoutes(Router);
   return (
     <ThemeProvider theme={theme}>
+      <ToastContainer />
       <div className="App">{routing}</div>
     </ThemeProvider>
   );
