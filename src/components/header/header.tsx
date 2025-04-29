@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectLoginUser } from "../../store/auth/selectors";
 import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material/styles";
+import { WalletConnect } from "../WalletConnect";
 
 const StyledLogoLeaked = styled("img")({
   marginLeft: "20px",
@@ -70,6 +71,9 @@ const Header: FC = () => {
           >
             <Box />
             <Navigation />
+            <Box sx={{ ml: 2 }}>
+              <WalletConnect />
+            </Box>
             {visibleMenu &&
               matchMobileView &&
               <IconButton
