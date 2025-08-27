@@ -148,7 +148,14 @@ const ConnectWalletPage: React.FC = () => {
               disabled={connecting}
               variant="contained"
               color="primary"
-              sx={{ minWidth: 180, fontWeight: 800 }}
+                sx={{
+                  minWidth: 180, fontWeight: 800, borderRadius: "6px",
+                  backgroundColor: "#00dbe3",
+                  color: "#fff",
+                  "&:hover": {
+                    backgroundColor: "#00c0c7"
+                  }
+                }}
             >
               {connecting ? (
                 <Stack direction="row" spacing={1} alignItems="center">
