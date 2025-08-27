@@ -1,3 +1,23 @@
+# Candidate Submission – Connect Wallet Feature
+
+This is my solution for the take-home project.
+
+### ✅ What I implemented
+- Added a **Connect Wallet** button in the navigation, linking to `/connect-wallet`.
+- Built a new `/connect-wallet` page that:
+  - Connects MetaMask (or any EIP-1193 wallet)
+  - Shows wallet address (with copy-to-clipboard + shortened display)
+  - Displays current network (Mainnet, Sepolia, etc.)
+  - Fetches and displays ETH balance
+  - Reacts to account/network changes in real time
+- Styled using MUI to match the existing UI palette.
+
+### 🚀 How to run
+```bash
+npm install
+npm start
+```
+
 # 🚀 DeFi MVP - A Minimal Decentralized Finance Platform
 
 ## 🌟 Overview
