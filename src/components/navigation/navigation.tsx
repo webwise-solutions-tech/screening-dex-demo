@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import Box from "@mui/material/Box";
 import { navigations } from "./navigation.data";
 import { Link } from "@mui/material";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 type NavigationData = {
   path: string;
@@ -12,6 +12,7 @@ type NavigationData = {
 const Navigation: FC = () => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const navigate = useNavigate();
 
   return (
     <Box
@@ -72,7 +73,7 @@ const Navigation: FC = () => {
           textDecoration: "none",
           textTransform: "uppercase",
           fontWeight: 600,
-          display: "inline-flex",
+          display: currentPath.includes("/connect-wallet") ? "none" : "inline-flex",
           alignItems: "center",
           justifyContent: "center",
           px: { xs: 0, lg: 3 },
@@ -84,6 +85,7 @@ const Navigation: FC = () => {
           borderRadius: "6px",
           backgroundColor: "#00dbe3"
         }}
+        onClick={() => navigate('/connect-wallet')}
       >
         Connect Wallet
       </Box>
